@@ -1,0 +1,896 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--b:#1565c0;--bl:#e3f2fd;--bm:#42a5f5;--bd:#0d47a1;--w:#fff;--g:#f5faff;--t:#1a2a3a;--tm:#4a6080}
+html,body{font-family:'Segoe UI',system-ui,sans-serif;font-size:16px}
+#app{background:#f0f7ff;min-height:100vh}
+.screen{display:none}.screen.active{display:block}
+
+.hdr{background:linear-gradient(135deg,#0d47a1 0%,#1976d2 60%,#42a5f5 100%);color:#fff;padding:14px 18px 10px;border-radius:0 0 20px 20px}
+.hdr-row{display:flex;align-items:center;gap:10px}
+.hdr-icon{width:38px;height:38px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.hdr-title{font-size:15px;font-weight:700}.hdr-sub{font-size:11px;opacity:.85;margin-top:1px}
+.pbar{height:5px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:8px}
+.pfill{height:100%;background:#90caf9;border-radius:3px;transition:width .5s}
+
+.nav{display:flex;gap:5px;padding:10px 14px;overflow-x:auto;scrollbar-width:none;background:#fff;border-bottom:2px solid #e3f2fd}
+.nav::-webkit-scrollbar{display:none}
+.npill{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px solid #bbdefb;background:#f5faff;color:#1565c0;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
+.npill.active{background:#1565c0;color:#fff;border-color:#1565c0}
+.npill.done{background:#e8f5e9;color:#2e7d32;border-color:#a5d6a7}
+
+.body{padding:16px 14px;max-width:700px;margin:0 auto}
+.card{background:#fff;border-radius:14px;border:1.5px solid #e3f2fd;padding:16px;margin-bottom:14px}
+.card-blue{background:#e3f2fd;border-color:#90caf9}
+.stitle{font-size:14px;font-weight:700;color:#0d47a1;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;background:#1565c0;color:#fff;margin-bottom:10px}
+.badge-g{background:#2e7d32}
+
+textarea,input[type=text]{width:100%;padding:9px 12px;border:1.5px solid #90caf9;border-radius:10px;font-size:13px;font-family:inherit;background:#f5faff;color:#1a2a3a;outline:none;resize:vertical;transition:border .2s}
+textarea:focus,input[type=text]:focus{border-color:#1565c0;box-shadow:0 0 0 3px rgba(21,101,192,.15)}
+.igroup{margin:8px 0}
+.igroup label{font-size:12px;color:#4a6080;font-weight:700;display:block;margin-bottom:4px}
+
+.fb{padding:9px 13px;border-radius:10px;font-size:12px;font-weight:600;margin:8px 0;display:none}
+.fb.show{display:block}
+.fb-ok{background:#e8f5e9;color:#1b5e20;border:1.5px solid #a5d6a7}
+.fb-err{background:#ffebee;color:#b71c1c;border:1.5px solid #ef9a9a}
+.fb-inf{background:#e3f2fd;color:#0d47a1;border:1.5px solid #90caf9}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 20px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-p{background:#1565c0;color:#fff}.btn-p:hover{background:#0d47a1;transform:translateY(-1px)}
+.btn-s{background:#fff;color:#1565c0;border:2px solid #1565c0}.btn-s:hover{background:#e3f2fd}
+.btn-g{background:#2e7d32;color:#fff}
+.btn-row{display:flex;justify-content:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+th{background:#1565c0;color:#fff;padding:8px 6px;text-align:center;font-size:11px}
+td{padding:7px 5px;text-align:center;border:1px solid #e3f2fd;color:#1a2a3a;font-size:12px}
+tr:nth-child(even) td{background:#f5faff}
+td input[type=text]{width:100%;padding:4px 6px;font-size:11px;border-radius:6px;background:#fff}
+/* locked cell style */
+td input.cell-locked{background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;font-weight:700;cursor:default}
+
+.hl{background:#fff8e1;border-left:3px solid #f9a825;border-radius:0 8px 8px 0;padding:9px 12px;margin:8px 0;font-size:12px;color:#e65100}
+
+.qopt{display:block;width:100%;padding:11px 14px;margin:6px 0;background:#f5faff;border:2px solid #e3f2fd;border-radius:11px;font-size:13px;cursor:pointer;text-align:left;transition:all .2s;font-weight:600;color:#1a2a3a;font-family:inherit}
+.qopt:hover:not(:disabled){border-color:#1565c0;background:#e3f2fd}
+.qopt.ok{background:#e8f5e9;border-color:#2e7d32;color:#1b5e20}
+.qopt.no{background:#ffebee;border-color:#c62828;color:#b71c1c}
+.qopt:disabled{cursor:default}
+
+.celebrate{text-align:center;padding:16px;animation:fadeUp .4s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.flowers{font-size:24px;letter-spacing:3px;display:block;margin:6px 0}
+.rew-txt{font-size:17px;font-weight:800;color:#0d47a1;margin:6px 0}
+.score-big{font-size:42px;font-weight:900;color:#1565c0;margin:4px 0}
+
+.save-box{background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:10px;padding:10px 13px;margin:8px 0;font-size:12px;color:#1b5e20;display:none}
+.save-box.show{display:block}
+
+/* locked answer fields */
+.ans-locked{background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;font-weight:700}
+input.ans-locked,textarea.ans-locked{background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;font-weight:700;cursor:default}
+
+/* Saved answers review box */
+.saved-review{background:#f0f7ff;border:1.5px solid #90caf9;border-radius:12px;padding:12px 14px;margin:10px 0;font-size:12px;color:#1a2a3a}
+.saved-review-title{font-size:11px;font-weight:700;color:#0d47a1;margin-bottom:8px}
+.saved-review-item{background:#fff;border-radius:8px;padding:8px 10px;margin:5px 0;border:1px solid #e3f2fd;font-size:12px;color:#1a2a3a;line-height:1.6}
+.saved-review-label{font-size:10px;font-weight:700;color:#4a6080;margin-bottom:3px}
+
+/* Pizza slice display — no pointer, no hover */
+.pizza-slice-wrap{text-align:center}
+.pizza-slice-wrap svg{cursor:default !important}
+
+@media(max-width:480px){.hdr-title{font-size:13px}.stitle{font-size:13px}.btn{font-size:12px;padding:8px 14px}.qopt{font-size:12px;padding:9px 11px}}
+</style>
+
+<div id="app">
+<div id="s-cover" class="screen active">
+  <div style="background:linear-gradient(135deg,#0d47a1,#1976d2,#42a5f5);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:30px 16px 24px">
+    <div style="width:70px;height:70px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+      <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="#fff" stroke-width="2"/><path d="M20,20 L38,20 A18,18 0 0,1 11,35.6 Z" fill="rgba(255,255,255,.7)"/><line x1="20" y1="20" x2="38" y2="20" stroke="#fff" stroke-width="2"/><line x1="20" y1="20" x2="11" y2="35.6" stroke="#fff" stroke-width="2"/><circle cx="20" cy="20" r="2.5" fill="#fff"/></svg>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,.8);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Kamus Asing</div>
+    <div style="font-size:24px;font-weight:900;color:#fff;text-align:center;line-height:1.25;margin-bottom:6px">Menemukan Rumus<br>Luas Juring Lingkaran</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.8);text-align:center;margin-bottom:20px;max-width:300px;line-height:1.6">Belajar matematika melalui eksplorasi dan penemuan mandiri yang menyenangkan!</div>
+    <div style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.3);border-radius:16px;padding:18px;width:100%;max-width:380px;margin-bottom:18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <div style="width:36px;height:36px;background:rgba(255,255,255,.25);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">&#127979;</div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff">UIN Walisongo Semarang</div><div style="font-size:10px;color:rgba(255,255,255,.75)">Pendidikan Matematika</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:rgba(255,255,255,.18);border-radius:10px;padding:10px;text-align:center"><div style="width:36px;height:36px;background:rgba(255,255,255,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;margin:0 auto 6px">ZN</div><div style="font-size:11px;font-weight:700;color:#fff;line-height:1.3">Zahrotun Nafi'ah</div><div style="font-size:10px;color:rgba(255,255,255,.7);margin-top:2px;background:rgba(0,0,0,.15);border-radius:6px;padding:2px 6px">24080560031</div></div>
+        <div style="background:rgba(255,255,255,.18);border-radius:10px;padding:10px;text-align:center"><div style="width:36px;height:36px;background:rgba(255,255,255,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;margin:0 auto 6px">SA</div><div style="font-size:11px;font-weight:700;color:#fff;line-height:1.3">Shinta Alifiana Dewi</div><div style="font-size:10px;color:rgba(255,255,255,.7);margin-top:2px;background:rgba(0,0,0,.15);border-radius:6px;padding:2px 6px">24080560041</div></div>
+        <div style="background:rgba(255,255,255,.18);border-radius:10px;padding:10px;text-align:center"><div style="width:36px;height:36px;background:rgba(255,255,255,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;margin:0 auto 6px">SR</div><div style="font-size:11px;font-weight:700;color:#fff;line-height:1.3">Shella Ramadhani</div><div style="font-size:10px;color:rgba(255,255,255,.7);margin-top:2px;background:rgba(0,0,0,.15);border-radius:6px;padding:2px 6px">24080560046</div></div>
+        <div style="background:rgba(255,255,255,.18);border-radius:10px;padding:10px;text-align:center"><div style="width:36px;height:36px;background:rgba(255,255,255,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;margin:0 auto 6px">MD</div><div style="font-size:11px;font-weight:700;color:#fff;line-height:1.3">M. Danda Kholilurrohman</div><div style="font-size:10px;color:rgba(255,255,255,.7);margin-top:2px;background:rgba(0,0,0,.15);border-radius:6px;padding:2px 6px">24080560047</div></div>
+      </div>
+    </div>
+    <button class="btn btn-p" style="background:#fff;color:#1565c0;font-size:14px;padding:12px 32px;border-radius:12px" onclick="gS('s-main');renderPhase(0)">Mulai Belajar &#8594;</button>
+  </div>
+</div>
+
+<div id="s-main" class="screen">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div class="hdr-icon">&#8982;</div>
+      <div style="flex:1"><div class="hdr-title" id="ph-title">Fase 1</div><div class="hdr-sub">Matematika — Luas Juring</div></div>
+      <div style="font-size:11px;opacity:.85" id="ph-ctr">1/6</div>
+    </div>
+    <div class="pbar"><div class="pfill" id="pfill" style="width:16%"></div></div>
+  </div>
+  <div class="nav">
+    <div class="npill active" id="p0" onclick="navTo(0)">&#127758; Stimulus</div>
+    <div class="npill" id="p1" onclick="navTo(1)">&#10067; Masalah</div>
+    <div class="npill" id="p2" onclick="navTo(2)">&#128196; Data</div>
+    <div class="npill" id="p3" onclick="navTo(3)">&#9881; Olah</div>
+    <div class="npill" id="p4" onclick="navTo(4)">&#10003; Verifikasi</div>
+    <div class="npill" id="p5" onclick="navTo(5)">&#128161; Simpulan</div>
+  </div>
+  <div class="body" id="ph-body"></div>
+</div>
+
+<div id="s-quiz" class="screen">
+  <div class="hdr">
+    <div class="hdr-row"><div class="hdr-icon">&#127942;</div><div style="flex:1"><div class="hdr-title">Kuis — Luas Juring</div></div><div style="font-size:11px;opacity:.85" id="q-ctr">1/5</div></div>
+    <div class="pbar"><div class="pfill" id="q-pbar" style="width:20%"></div></div>
+  </div>
+  <div class="body" id="q-body"></div>
+</div>
+
+<div id="s-result" class="screen">
+  <div class="hdr"><div class="hdr-row"><div class="hdr-icon">&#9733;</div><div><div class="hdr-title">Hasil Kuis</div></div></div></div>
+  <div class="body" id="r-body" style="text-align:center;padding-top:24px"></div>
+</div>
+</div>
+
+<script>
+var CP=0, done=[0,0,0,0,0,0];
+var saved={};
+var qIdx=0, qScore=0, qWrong=[];
+
+function gS(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById(id).classList.add('active')}
+
+function navTo(i){
+  if(i===0||done[i-1]||done[i]) renderPhase(i);
+  else{
+    var fb=document.createElement('div');
+    fb.textContent='Selesaikan fase sebelumnya terlebih dahulu!';
+    fb.className='fb fb-inf show';
+    fb.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99;min-width:220px;text-align:center';
+    document.body.appendChild(fb);
+    setTimeout(function(){document.body.removeChild(fb)},2000);
+  }
+}
+
+var phaseMeta=[
+  {t:'Fase 1 — Stimulus / Pemberian Rangsang',c:'1/6',p:'16%'},
+  {t:'Fase 2 — Problem Statement / Identifikasi Masalah',c:'2/6',p:'33%'},
+  {t:'Fase 3 — Data Collection / Pengumpulan Data',c:'3/6',p:'50%'},
+  {t:'Fase 4 — Data Processing / Pengolahan Data',c:'4/6',p:'67%'},
+  {t:'Fase 5 — Verification / Pembuktian',c:'5/6',p:'83%'},
+  {t:'Fase 6 — Generalization / Menarik Kesimpulan',c:'6/6',p:'100%'}
+];
+
+function renderPhase(i){
+  CP=i;
+  var m=phaseMeta[i];
+  document.getElementById('ph-title').textContent=m.t;
+  document.getElementById('ph-ctr').textContent=m.c;
+  document.getElementById('pfill').style.width=m.p;
+  for(var k=0;k<6;k++){
+    var el=document.getElementById('p'+k);
+    el.classList.remove('active','done');
+    if(k===i) el.classList.add('active');
+    else if(done[k]) el.classList.add('done');
+  }
+  var fns=[ph0,ph1,ph2,ph3,ph4,ph5];
+  document.getElementById('ph-body').innerHTML=fns[i]();
+  window.scrollTo(0,0);
+}
+
+function nextPhase(){done[CP]=1; if(CP<5) renderPhase(CP+1)}
+
+function saveAndNext(phaseKey,getter){
+  var data=getter();
+  if(!data) return;
+  saved[phaseKey]=data;
+  var sb=document.getElementById('save-box-'+phaseKey);
+  if(sb){sb.className='save-box show';sb.innerHTML='&#10003; Jawaban tersimpan! <span style="font-size:11px;color:#388e3c">'+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+'</span>'}
+  setTimeout(function(){nextPhase()},900);
+}
+
+function escHtml(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ======== SAVED ANSWERS REVIEW ======== */
+function renderSavedAnswers(phaseIdx){
+  var labels={p0:'Fase 1 — Pendapatmu tentang pizza',p1:'Fase 2 — Identifikasi masalah',p2:'Fase 3 — Tabel data',p3:'Fase 4 — Pengolahan data',p4:'Fase 5 — Soal pembuktian',p5:'Fase 6 — Kesimpulan'};
+  var keys=['p0','p1','p2','p3','p4','p5'];
+  var html='', found=false;
+  for(var k=0;k<phaseIdx;k++){
+    var key=keys[k];
+    if(!saved[key]) continue;
+    if(!found){html='<div class="saved-review"><div class="saved-review-title">&#128190; Jawaban tersimpan dari fase sebelumnya:</div>';found=true;}
+    var d=saved[key];
+    html+='<div class="saved-review-item"><div class="saved-review-label">'+labels[key]+'</div>';
+    if(key==='p0'&&d.ans) html+='<span style="color:#1565c0">'+escHtml(d.ans)+'</span>';
+    else if(key==='p1'){if(d.rl) html+='Rumus: <b>'+escHtml(d.rl)+'</b><br>';if(d.alasan) html+='Alasan: '+escHtml(d.alasan);}
+    else if(key==='p2') html+=renderSavedTable(d);
+    else if(key==='p3'&&d.s1){html+='α/360 = <b>'+escHtml(d.s1)+'</b> &nbsp;|&nbsp; πr² = <b>'+escHtml(d.s2||'-')+'</b> &nbsp;|&nbsp; Luas = <b>'+escHtml(d.s3||'-')+'</b>';if(d.steps1) html+='<br><span style="font-size:10px;color:#4a6080">Langkah 1: '+escHtml(d.steps1)+'</span>';if(d.steps2) html+='<br><span style="font-size:10px;color:#4a6080">Langkah 2: '+escHtml(d.steps2)+'</span>';if(d.steps3) html+='<br><span style="font-size:10px;color:#4a6080">Langkah 3: '+escHtml(d.steps3)+'</span>';}
+    else if(key==='p4') html+=renderSavedVerif(d);
+    else if(key==='p5') html+=renderSavedConclusion(d);
+    else html+='<span style="color:#2e7d32">&#10003; Selesai</span>';
+    html+='</div>';
+  }
+  if(found) html+='</div>';
+  return html;
+}
+
+function renderSavedTable(d){
+  if(!d||!d.cells) return '<span style="color:#2e7d32">&#10003; Tabel berhasil dilengkapi</span>';
+  var c=d.cells;
+  return '<table style="font-size:11px;margin-top:4px"><tr><th>Sudut</th><th>Bagian 360°</th><th>Pecahan</th><th>Luas (cm²)</th></tr>'+
+    '<tr><td>360°</td><td>360/360</td><td>1</td><td>154</td></tr>'+
+    '<tr><td>180°</td><td style="color:#2e7d32;font-weight:700">'+(c.t2a||'-')+'</td><td style="color:#2e7d32;font-weight:700">'+(c.t2b||'-')+'</td><td style="color:#2e7d32;font-weight:700">'+(c.t2c||'-')+'</td></tr>'+
+    '<tr><td>90°</td><td style="color:#2e7d32;font-weight:700">'+(c.t3a||'-')+'</td><td style="color:#2e7d32;font-weight:700">'+(c.t3b||'-')+'</td><td style="color:#2e7d32;font-weight:700">'+(c.t3c||'-')+'</td></tr>'+
+    '<tr><td>60°</td><td style="color:#2e7d32;font-weight:700">'+(c.t4a||'-')+'</td><td style="color:#2e7d32;font-weight:700">'+(c.t4b||'-')+'</td><td style="color:#2e7d32;font-weight:700">'+(c.t4c||'-')+'</td></tr>'+
+    '</table>';
+}
+
+function renderSavedVerif(d){
+  if(!d||(!d.cells&&!d.v1)) return '<span style="color:#2e7d32">&#10003; Semua soal pembuktian selesai</span>';
+  var cells=d.cells||{};
+  var steps=d.steps||{};
+  var html='';
+  verifData.forEach(function(vd,n){
+    var val=cells[vd.id]||d[vd.id]||'-';
+    var st=steps[vd.id]||'';
+    html+='<div style="margin:4px 0"><span style="font-weight:700;color:#0d47a1">Soal '+(n+1)+':</span> <b>'+escHtml(val)+'</b>';
+    if(st) html+='<br><span style="font-size:10px;color:#4a6080">Langkah: '+escHtml(st)+'</span>';
+    html+='</div>';
+  });
+  return html||'<span style="color:#2e7d32">&#10003; Semua soal pembuktian selesai</span>';
+}
+
+function renderSavedConclusion(d){
+  if(!d||!d.c1) return '<span style="color:#2e7d32">&#10003; Kesimpulan selesai</span>';
+  var html='<table style="font-size:11px;margin-top:4px;width:100%">';
+  var qs=['Pengertian juring','Faktor luas juring','Rumus luas juring','Hubungan sudut & luas'];
+  var vs=[d.c1,d.c2,d.c3,d.c4];
+  for(var i=0;i<4;i++){
+    html+='<tr><td style="font-weight:700;color:#4a6080;width:35%;text-align:left;padding:3px 5px">'+qs[i]+'</td><td style="color:#1565c0;text-align:left;padding:3px 5px">'+escHtml(vs[i]||'-')+'</td></tr>';
+  }
+  return html+'</table>';
+}
+
+/* ======== PIZZA FULL SVG ======== */
+function pizzaFullSVG(){
+  return '<div style="text-align:center;margin:10px 0 14px">'+
+  '<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 4px 14px rgba(0,0,0,.18));border-radius:50%">'+
+  '<defs><radialGradient id="pep0" cx="40%" cy="35%"><stop offset="0%" stop-color="#e05050"/><stop offset="100%" stop-color="#7b1010"/></radialGradient><radialGradient id="cheeseGrad" cx="50%" cy="30%"><stop offset="0%" stop-color="#f9e08a"/><stop offset="100%" stop-color="#e8c84a"/></radialGradient></defs>'+
+  // crust outer
+  '<circle cx="100" cy="100" r="97" fill="#b5651d"/>'+
+  // crust baked ring
+  '<circle cx="100" cy="100" r="90" fill="#e8a84c"/>'+
+  // crust texture bumps
+  '<circle cx="100" cy="11" r="5" fill="#c97c2a" opacity="0.6"/><circle cx="139" cy="21" r="4" fill="#c97c2a" opacity="0.5"/><circle cx="60" cy="21" r="4" fill="#c97c2a" opacity="0.5"/><circle cx="12" cy="75" r="4" fill="#c97c2a" opacity="0.5"/><circle cx="188" cy="75" r="4" fill="#c97c2a" opacity="0.5"/>'+
+  // sauce
+  '<circle cx="100" cy="100" r="80" fill="#c0392b"/>'+
+  // cheese
+  '<circle cx="100" cy="100" r="80" fill="url(#cheeseGrad)" opacity="0.88"/>'+
+  // cheese blobs
+  '<ellipse cx="60" cy="70" rx="12" ry="7" fill="#f9e28d" opacity="0.6" transform="rotate(20 60 70)"/>'+
+  '<ellipse cx="140" cy="130" rx="11" ry="6" fill="#f9e28d" opacity="0.6" transform="rotate(-15 140 130)"/>'+
+  '<ellipse cx="130" cy="60" rx="9" ry="5" fill="#f9e28d" opacity="0.6"/>'+
+  '<ellipse cx="68" cy="135" rx="8" ry="5" fill="#f9e28d" opacity="0.6" transform="rotate(30 68 135)"/>'+
+  // cut lines (4 cuts = 8 slices)
+  '<line x1="100" y1="20" x2="100" y2="180" stroke="#a0522d" stroke-width="2" opacity="0.55"/>'+
+  '<line x1="20" y1="100" x2="180" y2="100" stroke="#a0522d" stroke-width="2" opacity="0.55"/>'+
+  '<line x1="44" y1="44" x2="156" y2="156" stroke="#a0522d" stroke-width="2" opacity="0.55"/>'+
+  '<line x1="156" y1="44" x2="44" y2="156" stroke="#a0522d" stroke-width="2" opacity="0.55"/>'+
+  // pepperoni
+  '<circle cx="100" cy="58" r="10" fill="url(#pep0)"/><circle cx="97" cy="55" r="3" fill="rgba(255,255,255,0.18)"/>'+
+  '<circle cx="58" cy="100" r="10" fill="url(#pep0)"/><circle cx="55" cy="97" r="3" fill="rgba(255,255,255,0.18)"/>'+
+  '<circle cx="142" cy="100" r="10" fill="url(#pep0)"/><circle cx="139" cy="97" r="3" fill="rgba(255,255,255,0.18)"/>'+
+  '<circle cx="100" cy="142" r="10" fill="url(#pep0)"/><circle cx="97" cy="139" r="3" fill="rgba(255,255,255,0.18)"/>'+
+  '<circle cx="73" cy="73" r="8" fill="url(#pep0)"/><circle cx="71" cy="71" r="2.5" fill="rgba(255,255,255,0.18)"/>'+
+  '<circle cx="127" cy="73" r="8" fill="url(#pep0)"/><circle cx="125" cy="71" r="2.5" fill="rgba(255,255,255,0.18)"/>'+
+  '<circle cx="73" cy="127" r="8" fill="url(#pep0)"/><circle cx="71" cy="125" r="2.5" fill="rgba(255,255,255,0.18)"/>'+
+  '<circle cx="127" cy="127" r="8" fill="url(#pep0)"/><circle cx="125" cy="125" r="2.5" fill="rgba(255,255,255,0.18)"/>'+
+  // basil
+  '<ellipse cx="116" cy="84" rx="8" ry="4" fill="#2e7d32" opacity="0.9" transform="rotate(-30 116 84)"/>'+
+  '<ellipse cx="84" cy="116" rx="8" ry="4" fill="#2e7d32" opacity="0.9" transform="rotate(50 84 116)"/>'+
+  // center
+  '<circle cx="100" cy="100" r="4" fill="#a0522d"/>'+
+  // gloss
+  '<circle cx="100" cy="100" r="97" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6"/>'+
+  '</svg>'+
+  '<div style="font-size:12px;color:#8b5e3c;font-weight:700;margin-top:6px">🍕 Pizza Utuh (360°)</div>'+
+  '</div>';
+}
+
+/* ======== PIZZA SLICE CARD — no onclick, no hover, show degrees only ======== */
+function pizzaSliceCard(deg){
+  // Color palette per slice degree
+  var colors={90:'#e53935',60:'#fb8c00',120:'#7b1fa2',45:'#2e7d32'};
+  var color=colors[deg]||'#1565c0';
+  var cx=75, cy=75, r=65;
+  var a=deg*Math.PI/180;
+  var x2=cx+r, y2=cy;
+  var x3=cx+r*Math.cos(-a), y3=cy+r*Math.sin(-a);
+  var large=deg>180?1:0;
+  // inner radii for layered look
+  var ri1=r-7, ri2=r-14; // crust edge, cheese/sauce line
+  var cheeseColor='#f5d278';
+
+  // Angle arc label position (midpoint of arc, slightly inside)
+  var midA = -a/2;
+  var arcR = r*0.55;
+  var lx = cx + arcR*Math.cos(midA);
+  var ly = cy + arcR*Math.sin(midA);
+
+  return '<div class="pizza-slice-wrap" style="text-align:center">'+
+  '<svg width="130" height="140" viewBox="0 0 150 155" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">'+
+  '<defs><radialGradient id="pg'+deg+'" cx="40%" cy="35%"><stop offset="0%" stop-color="#e05050"/><stop offset="100%" stop-color="#7b1010"/></radialGradient></defs>'+
+  // Full circle faint background (shows the whole pizza context)
+  '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#f5d278" stroke="#d97706" stroke-width="1.5" opacity="0.18"/>'+
+  // Cut lines
+  '<line x1="'+cx+'" y1="'+cy+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="#a0522d" stroke-width="2"/>'+
+  '<line x1="'+cx+'" y1="'+cy+'" x2="'+x3.toFixed(1)+'" y2="'+y3.toFixed(1)+'" stroke="#a0522d" stroke-width="2"/>'+
+  // Center dot
+  '<circle cx="'+cx+'" cy="'+cy+'" r="4" fill="#a0522d"/>'+
+  // Degree label INSIDE the slice
+  '<text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" text-anchor="middle" font-size="13" fill="#fff" font-weight="800" style="paint-order:stroke;stroke:#5d4037;stroke-width:2px">'+deg+'°</text>'+
+  '</svg>'+
+  '</div>';
+}
+
+/* ======== PHASE 0 — STIMULUS ======== */
+function ph0(){
+  var prev=saved['p0']||{};
+  return '<div class="badge">Fase 1 — Simulation</div>'+
+  '<div class="card card-blue">'+
+  '<div class="stitle">&#127829; Masalah Nyata: Pizza dengan Sudut Berbeda</div>'+
+  '<p style="font-size:12px;color:#4a6080;line-height:1.7;margin-bottom:8px">Perhatikan gambar pizza berikut! Ini adalah <b>pizza utuh</b> yang siap dipotong. Setelah itu, kamu akan melihat pizza yang dipotong dengan sudut yang berbeda-beda.</p>'+
+  pizzaFullSVG()+
+  '<p style="font-size:12px;color:#4a6080;line-height:1.7;margin-top:4px;margin-bottom:10px">Pizza di atas adalah pizza utuh (360°). Nah, sekarang perhatikan gambar berikut dengan sudutnya masing-masing dan bayangkan itu adalah potongan pizza:</p>'+
+  '<div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin:10px 0">'+
+    pizzaSliceCard(90)+
+    pizzaSliceCard(60)+
+    pizzaSliceCard(120)+
+    pizzaSliceCard(45)+
+  '</div>'+
+  '</div>'+
+  '<div class="card"><div class="stitle">&#128161; Pertanyaan Pemantik</div>'+
+  '<div class="hl">&#10067; Menurutmu, apakah pizza dengan sudut 90° memiliki luas yang sama dengan pizza sudut 60°? Mengapa?</div>'+
+  '<div class="igroup"><label>Tuliskan pendapatmu:</label>'+
+  '<textarea id="ans-p0" rows="3" placeholder="Menurut saya...">'+(prev.ans||'')+'</textarea></div>'+
+  '<div class="save-box" id="save-box-p0">'+(saved['p0']?'&#10003; Jawaban tersimpan!':'')+'</div>'+
+  '<div class="fb" id="fb-p0"></div>'+
+  '<div class="btn-row"><button class="btn btn-p" onclick="doSave0()">Simpan &amp; Lanjut &#8594;</button></div></div>';
+}
+
+function doSave0(){
+  var v=(document.getElementById('ans-p0')||{}).value||'';
+  if(v.trim().length<8){showFb('fb-p0','Tuliskan pendapatmu lebih lengkap ya!','err');return;}
+  showFb('fb-p0','Bagus! Pendapatmu sudah ditulis. Lanjut ke fase berikutnya!','ok');
+  saveAndNext('p0',function(){return{ans:v}});
+}
+
+/* ======== PHASE 1 ======== */
+function ph1(){
+  var prev=saved['p1']||{};
+  return renderSavedAnswers(1)+
+  '<div class="badge">Fase 2 — Problem Statement</div>'+
+  '<div class="card card-blue"><div class="stitle">&#10067; Rumusan Masalah</div>'+
+  '<div style="background:#fff;border:2px solid #90caf9;border-radius:10px;padding:12px;margin:8px 0;font-size:13px;font-weight:700;color:#0d47a1;line-height:1.7">"Bagaimana cara menghitung luas juring lingkaran jika diketahui jari-jari dan besar sudut pusatnya?"</div>'+
+  '<div class="hl">&#128270; Sebelum menemukan rumus, mari cek pemahaman awalmu!</div></div>'+
+  '<div class="card"><div class="stitle">&#10067; Pertanyaan 1: Faktor yang Mempengaruhi Luas Juring</div>'+
+  '<p style="font-size:12px;color:#4a6080;margin-bottom:8px">Manakah yang mempengaruhi luas juring? <b>(Pilih SEMUA yang menurut kamu benar)</b></p>'+
+  '<div id="chks">'+mkChk('cr','Hanya jari-jari (r) saja')+mkChk('ca','Hanya sudut pusat (α) saja')+mkChk('cb','Jari-jari dan sudut pusat')+mkChk('cd','Keliling lingkaran saja')+'</div>'+
+  '<div class="fb" id="fb-v1"></div>'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="checkP1()">Periksa Jawaban</button></div></div>'+
+  '<div class="card" id="card-rumus" style="display:none"><div class="stitle">&#9312; Pertanyaan 2: Rumus Luas Lingkaran</div>'+
+  '<p style="font-size:12px;color:#4a6080;margin-bottom:8px">Tuliskan rumus luas lingkaran penuh!</p>'+
+  '<div class="igroup"><label>Rumus luas lingkaran adalah:</label><input type="text" id="ans-rl" placeholder="L = ..." value="'+(prev.rl||'')+'"/></div>'+
+  '<div class="fb" id="fb-rl"></div>'+
+  '<div class="igroup"><label>Mengapa kamu perlu tahu rumus itu untuk mencari luas juring?</label><textarea id="ans-alasan" rows="2" placeholder="Karena...">'+(prev.alasan||'')+'</textarea></div>'+
+  '<div class="save-box" id="save-box-p1">'+(saved['p1']?'&#10003; Jawaban tersimpan!':'')+'</div>'+
+  '<div class="fb" id="fb-p1"></div>'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="checkRL()">Cek Rumus</button><button class="btn btn-p" id="btn-p1" style="display:none" onclick="doSave1()">Simpan &amp; Lanjut &#8594;</button></div></div>';
+}
+
+function mkChk(id,label){
+  return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1.5px solid #e3f2fd;margin:5px 0;cursor:pointer;font-size:12px;font-weight:600;color:#1a2a3a"><input type="checkbox" id="'+id+'" style="width:15px;height:15px;accent-color:#1565c0"> '+label+'</label>';
+}
+
+function checkP1(){
+  var cr=document.getElementById('cr').checked, ca=document.getElementById('ca').checked, cb=document.getElementById('cb').checked, cd=document.getElementById('cd').checked;
+  var fb=document.getElementById('fb-v1');
+  if(cb&&!cr&&!ca&&!cd){
+    showFbEl(fb,'Bagus! Benar — luas juring dipengaruhi oleh KEDUANYA: jari-jari (r) dan sudut pusat (α). Sekarang jawab pertanyaan berikutnya!','ok');
+    document.getElementById('card-rumus').style.display='block';
+  } else {
+    showFbEl(fb,'Kurang tepat, coba lagi!','err');
+  }
+}
+
+function checkRL(){
+  var v=(document.getElementById('ans-rl')||{}).value||'';
+  var vl=v.toLowerCase().replace(/\s/g,'');
+  var ok=vl.includes('pr')&&vl.includes('2')||vl.includes('pir')||vl.includes('\u03c0r')||vl.includes('phi')||vl.includes('22/7')||vl.includes('3.14')||vl.includes('3,14')||vl.includes('r2')||vl.includes('r\xb2')||vl.includes('xr');
+  var fb=document.getElementById('fb-rl');
+  if(ok){
+    showFbEl(fb,'Benar! Luas lingkaran = πr². Ini adalah dasar untuk mencari luas juring!','ok');
+    document.getElementById('btn-p1').style.display='inline-flex';
+  } else {
+    showFbEl(fb,'Kurang tepat, coba lagi!','err');
+  }
+}
+
+function doSave1(){
+  var rl=(document.getElementById('ans-rl')||{}).value||'';
+  var alasan=(document.getElementById('ans-alasan')||{}).value||'';
+  if(alasan.trim().length<5){showFb('fb-p1','Lengkapi alasanmu terlebih dahulu!','err');return;}
+  showFb('fb-p1','Sempurna! Jawaban tersimpan. Lanjut ke pengumpulan data!','ok');
+  saveAndNext('p1',function(){return{rl:rl,alasan:alasan}});
+}
+
+/* ======== PHASE 2 — DATA (with auto-lock correct cells) ======== */
+function ph2(){
+  // Restore saved cell values
+  var sv=saved['p2']&&saved['p2'].cells ? saved['p2'].cells : {};
+  return renderSavedAnswers(2)+
+  '<div class="badge">Fase 3 — Data Collection</div>'+
+  '<div class="card card-blue"><div class="stitle">&#128196; Mengumpulkan Data</div>'+
+  '<p style="font-size:12px;color:#4a6080;line-height:1.7">Lingkaran penuh memiliki sudut 360° dan luas = πr². Juring adalah <b>bagian</b> dari lingkaran. Lengkapi tabel berikut untuk r = 7 cm (π = 22/7)!</p>'+
+  '<div class="card"><div class="stitle">&#128202; Tabel Perbandingan</div>'+
+  '<div style="overflow-x:auto"><table>'+
+  '<tr><th style="width:14%">Sudut</th><th style="width:26%">Bagian dari 360°</th><th style="width:24%">Pecahan</th><th style="width:36%">Luas Juring (cm²)</th></tr>'+
+  '<tr><td>360°</td><td>360/360</td><td>1</td><td>154</td></tr>'+
+  mkTblRow('180°','t2a','t2b','t2c',sv)+
+  mkTblRow('90°','t3a','t3b','t3c',sv)+
+  mkTblRow('60°','t4a','t4b','t4c',sv)+
+  '<tr><td>α°</td><td>α/360</td><td>α/360</td><td>(?)</td></tr>'+
+  '</table></div>'+
+  '<div class="fb" id="fb-tbl"></div>'+
+  '<div class="save-box" id="save-box-p2">'+(saved['p2']?'&#10003; Jawaban tersimpan!':'')+'</div>'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="checkTbl()">Periksa Tabel</button>'+
+  '<button class="btn btn-p" id="btn-tbl" style="display:'+(saved['p2']?'inline-flex':'none')+'" onclick="doSave2()">Simpan &amp; Lanjut &#8594;</button></div></div>';
+}
+
+function mkTblRow(sudutLabel,id1,id2,id3,sv){
+  function cell(id){
+    var val=sv[id]||'';
+    var locked=val!=='';
+    var cls=locked?'cell-locked':'';
+    var ro=locked?'readonly':'';
+    return '<td><input type="text" id="'+id+'" value="'+escHtml(val)+'" placeholder="..." '+ro+' class="'+cls+'" style="width:100%;padding:3px 5px;font-size:11px;border-radius:6px;border:1.5px solid '+(locked?'#a5d6a7':'#90caf9')+';text-align:center;background:'+(locked?'#e8f5e9':'#f5faff')+'"/></td>';
+  }
+  return '<tr><td>'+sudutLabel+'</td>'+cell(id1)+cell(id2)+cell(id3)+'</tr>';
+}
+
+function gv(id){var el=document.getElementById(id);return el?el.value.replace(',','.').trim():''}
+
+var tblCorrect={
+  t2a:['180/360','0.5','1/2'],
+  t2b:['1/2','0.5'],
+  t2c:['77','77.0'],
+  t3a:['90/360','0.25','1/4'],
+  t3b:['1/4','0.25'],
+  t3c:['38.5','38.5','38'],
+  t4a:['60/360','0.167','1/6','0.16','0.17'],
+  t4b:['1/6','0.167','0.16','0.17'],
+  t4c:['25.67','25.7','25.6','26','25','25.3']
+};
+
+function checkCellCorrect(id){
+  var v=gv(id).toLowerCase();
+  return (tblCorrect[id]||[]).some(function(a){return v===a||v.replace(' ','')===a});
+}
+
+function checkTbl(){
+  var allOk=true;
+  var wrong=[];
+  Object.keys(tblCorrect).forEach(function(id){
+    var el=document.getElementById(id);
+    if(!el) return;
+    if(checkCellCorrect(id)){
+      // Lock this cell
+      el.style.borderColor='#a5d6a7';
+      el.style.background='#e8f5e9';
+      el.style.color='#1b5e20';
+      el.style.fontWeight='700';
+      el.readOnly=true;
+      el.classList.add('cell-locked');
+    } else {
+      allOk=false;
+      wrong.push(id);
+      el.style.borderColor='#ef9a9a';
+      el.style.background='#ffebee';
+    }
+  });
+  var fb=document.getElementById('fb-tbl');
+  if(allOk){
+    // Save cell values
+    if(!saved['p2']) saved['p2']={};
+    saved['p2'].cells=getCellValues();
+    showFbEl(fb,'Semua jawaban benar! Kamu berhasil melihat polanya: semakin kecil sudut, semakin kecil luas juringnya!','ok');
+    document.getElementById('btn-tbl').style.display='inline-flex';
+  } else {
+    // Save correct ones immediately
+    if(!saved['p2']) saved['p2']={};
+    if(!saved['p2'].cells) saved['p2'].cells={};
+    Object.keys(tblCorrect).forEach(function(id){
+      if(checkCellCorrect(id)) saved['p2'].cells[id]=document.getElementById(id).value;
+    });
+    showFbEl(fb,'Kurang tepat, coba lagi!','err');
+  }
+}
+
+function getCellValues(){
+  var c={};
+  ['t2a','t2b','t2c','t3a','t3b','t3c','t4a','t4b','t4c'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) c[id]=el.value;
+  });
+  return c;
+}
+
+function doSave2(){
+  if(!saved['p2']) saved['p2']={};
+  saved['p2'].cells=getCellValues();
+  showFb('fb-tbl','Data tersimpan! Lanjut ke pengolahan data!','ok');
+  saveAndNext('p2',function(){return saved['p2']});
+}
+
+/* ======== PHASE 3 ======== */
+function ph3(){
+  var prev=saved['p3']||{};
+  var stepsLocked=!!(prev.steps1&&prev.steps2&&prev.steps3);
+  function stepsArea(id,ph,val){
+    if(stepsLocked&&val) return '<textarea id="'+id+'" rows="3" readonly class="ans-locked" style="margin-top:6px">'+escHtml(val)+'</textarea>';
+    return '<textarea id="'+id+'" rows="3" placeholder="'+ph+'" style="margin-top:6px">'+(val||'')+'</textarea>';
+  }
+  return renderSavedAnswers(3)+
+  '<div class="badge">Fase 4 — Data Processing</div>'+
+  '<div class="card"><div class="stitle">&#128269; Pengolahan Data</div>'+
+  '<p style="font-size:12px;color:#4a6080;margin-bottom:8px">Dari data tersebut, kita telah menemukan pola. Sekarang, kerjakan soal berikut: sebuah juring dengan jari-jari <b>10 cm</b> dan sudut pusat <b>72°</b>. Hitung luasnya langkah demi langkah!</p>'+
+
+  '<div class="igroup"><label>Langkah 1: Berapa nilai α/360° ? (tulis pecahan atau desimal)</label>'+
+  '<input type="text" id="s1" placeholder="..." value="'+(prev.s1||'')+(prev.s1?' class="ans-locked"':'')+'" '+(prev.s1?'readonly':'')+'/><div class="fb '+(prev.s1?'fb-ok show':'')+'" id="fb-s1">'+(prev.s1?'Benar! 72/360 = 0,2':'')+'</div>'+
+  '<div style="background:#fff8e1;border-left:3px solid #f9a825;border-radius:0 8px 8px 0;padding:8px 12px;margin-top:8px;font-size:11px;color:#e65100">&#9997; Tuliskan langkah-langkah cara kamu mendapatkan jawaban di atas:</div>'+
+  stepsArea('steps1','Contoh: 72 dibagi 360, hasilnya adalah ...',prev.steps1||'')+
+  '<div class="fb" id="fb-steps1" style="'+(stepsLocked&&prev.steps1?'':'display:none')+'"></div>'+
+  '</div>'+
+
+  '<div class="igroup"><label>Langkah 2: Berapa πr² jika r = 10 cm? (π = 3,14)</label>'+
+  '<input type="text" id="s2" placeholder="... cm²" value="'+(prev.s2||'')+(prev.s2?' class="ans-locked"':'')+'" '+(prev.s2?'readonly':'')+'/><div class="fb '+(prev.s2?'fb-ok show':'')+'" id="fb-s2">'+(prev.s2?'Tepat! 3,14 × 100 = 314 cm²':'')+'</div>'+
+  '<div style="background:#fff8e1;border-left:3px solid #f9a825;border-radius:0 8px 8px 0;padding:8px 12px;margin-top:8px;font-size:11px;color:#e65100">&#9997; Tuliskan langkah-langkah cara kamu mendapatkan jawaban di atas:</div>'+
+  stepsArea('steps2','Contoh: π × r² = 3,14 × 10² = 3,14 × ... = ...',prev.steps2||'')+
+  '<div class="fb" id="fb-steps2" style="'+(stepsLocked&&prev.steps2?'':'display:none')+'"></div>'+
+  '</div>'+
+
+  '<div class="igroup"><label>Langkah 3: Luas juring = Langkah 1 × Langkah 2 = ?</label>'+
+  '<input type="text" id="s3" placeholder="... cm²" value="'+(prev.s3||'')+(prev.s3?' class="ans-locked"':'')+'" '+(prev.s3?'readonly':'')+'/><div class="fb '+(prev.s3?'fb-ok show':'')+'" id="fb-s3">'+(prev.s3?'Luar biasa! 0,2 × 314 = 62,8 cm²':'')+'</div>'+
+  '<div style="background:#fff8e1;border-left:3px solid #f9a825;border-radius:0 8px 8px 0;padding:8px 12px;margin-top:8px;font-size:11px;color:#e65100">&#9997; Tuliskan langkah-langkah cara kamu mendapatkan jawaban di atas:</div>'+
+  stepsArea('steps3','Contoh: Langkah 1 × Langkah 2 = 0,2 × ... = ...',prev.steps3||'')+
+  '<div class="fb" id="fb-steps3" style="'+(stepsLocked&&prev.steps3?'':'display:none')+'"></div>'+
+  '</div>'+
+
+  '<div class="save-box" id="save-box-p3">'+(saved['p3']?'&#10003; Jawaban tersimpan!':'')+'</div>'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="checkProc()">Periksa</button><button class="btn btn-p" id="btn-p3" style="display:'+(saved['p3']?'inline-flex':'none')+'" onclick="doSave3()">Simpan &amp; Lanjut &#8594;</button></div></div>';
+}
+
+function checkProc(){
+  var s1=gv('s1'), s2=gv('s2'), s3=gv('s3');
+  var ok1=s1==='0.2'||s1==='1/5'||s1==='72/360'||parseFloat(s1)===0.2;
+  var ok2=parseFloat(s2)>=313&&parseFloat(s2)<=315;
+  var ok3=parseFloat(s3)>=62&&parseFloat(s3)<=63.5;
+  var st1=(gv('steps1')||'').trim(), st2=(gv('steps2')||'').trim(), st3=(gv('steps3')||'').trim();
+  if(ok1){showFb('fb-s1','Benar! 72/360 = 0,2','ok'); lockInput('s1');}else showFb('fb-s1','Kurang tepat, coba lagi!','err');
+  if(ok2){showFb('fb-s2','Tepat! 3,14 × 100 = 314 cm²','ok'); lockInput('s2');}else showFb('fb-s2','Kurang tepat, coba lagi!','err');
+  if(ok3){showFb('fb-s3','Luar biasa! 0,2 × 314 = 62,8 cm²','ok'); lockInput('s3');}else showFb('fb-s3','Kurang tepat, coba lagi!','err');
+  if(ok1&&ok2&&ok3){
+    var missingSteps=[];
+    if(!st1) missingSteps.push('Langkah 1');
+    if(!st2) missingSteps.push('Langkah 2');
+    if(!st3) missingSteps.push('Langkah 3');
+    if(missingSteps.length>0){
+      var msg='Jawaban sudah benar! Jangan lupa tuliskan langkah-langkahmu untuk: '+missingSteps.join(', ')+' ya!';
+      showFb('fb-s3',msg,'inf');
+    } else {
+      document.getElementById('btn-p3').style.display='inline-flex';
+    }
+  }
+}
+
+function lockInput(id){
+  var el=document.getElementById(id);
+  if(el){el.readOnly=true;el.classList.add('ans-locked');el.style.background='#e8f5e9';el.style.borderColor='#a5d6a7';el.style.color='#1b5e20';el.style.fontWeight='700';}
+}
+
+function doSave3(){
+  var st1=(gv('steps1')||'').trim(), st2=(gv('steps2')||'').trim(), st3=(gv('steps3')||'').trim();
+  if(!st1||!st2||!st3){
+    var missing=[];
+    if(!st1) missing.push('Langkah 1'); if(!st2) missing.push('Langkah 2'); if(!st3) missing.push('Langkah 3');
+    showFb('fb-s3','Lengkapi langkah-langkahmu untuk: '+missing.join(', ')+' sebelum menyimpan!','err');
+    return;
+  }
+  ['steps1','steps2','steps3'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.readOnly=true;el.classList.add('ans-locked');el.style.background='#e8f5e9';el.style.borderColor='#a5d6a7';el.style.color='#1b5e20';el.style.fontWeight='700';}
+  });
+  saveAndNext('p3',function(){return{s1:gv('s1'),s2:gv('s2'),s3:gv('s3'),steps1:st1,steps2:st2,steps3:st3}});
+}
+
+/* ======== PHASE 4 — VERIFICATION (auto-lock correct answers) ======== */
+var verifData=[
+  {id:'v1',q:'Jika α = 360° dan r = 7 cm, berapakah luas juringnya? Apa artinya?',ans:154,explain:'Luas = (360/360) × πr² = 1 × 154 = 154 cm² (sama dengan luas lingkaran penuh!)'},
+  {id:'v2',q:'Jika α = 180° dan r = 14 cm (π = 22/7), berapakah luas juringnya?',ans:308,explain:'Luas = (180/360) × (22/7) × 196 = (1/2) × 616 = 308 cm² (setengah lingkaran)'},
+  {id:'v3',q:'Pizza berdiameter 28 cm dipotong 6 bagian sama besar. Berapa luas tiap potongan? (π = 22/7)',ans:102,explain:'Sudut = 360/6 = 60°. Luas = (60/360) × (22/7) × 14² = (1/6) × 616 ≈ 102,67 cm²'}
+];
+
+function ph4(){
+  var sv=saved['p4']&&saved['p4'].cells ? saved['p4'].cells : {};
+  var ss=saved['p4']&&saved['p4'].steps ? saved['p4'].steps : {};
+  var html=renderSavedAnswers(4)+
+  '<div class="badge">Fase 5 — Verification</div>'+
+  '<div class="card card-blue"><div class="stitle">&#10003; Soal-Soal Pembuktian</div>'+
+  '<p style="font-size:12px;color:#4a6080;line-height:1.7">Kerjakan soal berikut untuk membuktikan bahwa rumus tersebut benar dan berlaku umum!</p></div>';
+  verifData.forEach(function(vd,n){
+    var savedVal=sv[vd.id]||'';
+    var savedSteps=ss[vd.id]||'';
+    var isLocked=savedVal!=='';
+    var stepsLocked=savedSteps!=='';
+    html+='<div class="card"><div class="stitle">&#128221; Soal '+(n+1)+'</div>'+
+    '<p style="font-size:13px;color:#1a2a3a;margin-bottom:8px;line-height:1.6">'+vd.q+'</p>'+
+    '<div class="igroup"><label>Jawaban (tulis angkanya):</label>'+
+    '<input type="text" id="'+vd.id+'" value="'+escHtml(savedVal)+'" placeholder="..." '+(isLocked?'readonly':'')+' style="'+(isLocked?'background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;font-weight:700;':'')+'" /></div>'+
+    '<div class="fb '+(isLocked?'fb-ok show':'')+'" id="fb-'+vd.id+'">'+(isLocked?'&#10003; Benar! '+vd.explain:'')+'</div>'+
+    '<div style="background:#fff8e1;border-left:3px solid #f9a825;border-radius:0 8px 8px 0;padding:8px 12px;margin-top:10px;font-size:11px;color:#e65100">&#9997; Tuliskan langkah-langkah cara kamu mendapatkan jawaban di atas:</div>'+
+    '<textarea id="steps-'+vd.id+'" rows="3" placeholder="Tuliskan langkah pengerjaanmu di sini..." style="margin-top:6px;'+(stepsLocked?'background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;font-weight:700;':'')+'" '+(stepsLocked?'readonly':'')+'>'+escHtml(savedSteps)+'</textarea>'+
+    '<div class="fb" id="fb-steps-'+vd.id+'" style="display:none"></div>'+
+    '<div class="btn-row" style="justify-content:flex-start"><button class="btn btn-s" style="font-size:12px;padding:7px 14px;'+(isLocked?'display:none':'')+'" id="btn-check-'+vd.id+'" onclick="checkVerif(\''+vd.id+'\','+vd.ans+',\''+vd.explain.replace(/'/g,"\\'")+'\')">Periksa</button></div></div>';
+  });
+  html+='<div class="save-box" id="save-box-p4">'+(saved['p4']&&saved['p4'].done?'&#10003; Semua soal tersimpan!':'')+'</div>'+
+  '<div class="btn-row"><button class="btn btn-p" id="btn-p4" style="display:'+(saved['p4']&&saved['p4'].done?'inline-flex':'none')+'" onclick="doSave4()">Simpan &amp; Lanjut &#8594;</button></div>';
+  return html;
+}
+
+function checkVerif(id,ans,explain){
+  var v=parseFloat(gv(id));
+  var fb=document.getElementById('fb-'+id);
+  if(Math.abs(v-ans)<=3){
+    showFbEl(fb,'&#10003; Benar! '+explain,'ok');
+    // Lock the input
+    var el=document.getElementById(id);
+    if(el){el.readOnly=true;el.style.background='#e8f5e9';el.style.borderColor='#a5d6a7';el.style.color='#1b5e20';el.style.fontWeight='700';}
+    // Hide check button
+    var btn=document.getElementById('btn-check-'+id);
+    if(btn) btn.style.display='none';
+    // Auto-save this cell
+    if(!saved['p4']) saved['p4']={cells:{}};
+    if(!saved['p4'].cells) saved['p4'].cells={};
+    saved['p4'].cells[id]=document.getElementById(id).value;
+    checkAllVerif();
+  } else {
+    showFbEl(fb,'Kurang tepat, coba lagi!','err');
+  }
+}
+
+function checkAllVerif(){
+  var sv=saved['p4']&&saved['p4'].cells ? saved['p4'].cells : {};
+  var allAnswered=verifData.every(function(vd){
+    var val=sv[vd.id]||gv(vd.id);
+    return Math.abs(parseFloat(val)-vd.ans)<=3;
+  });
+  if(allAnswered){
+    // Check if all steps are filled
+    var missingSteps=[];
+    verifData.forEach(function(vd,n){
+      var st=(document.getElementById('steps-'+vd.id)||{}).value||'';
+      if(!st.trim()) missingSteps.push('Soal '+(n+1));
+    });
+    if(missingSteps.length>0){
+      var sb=document.getElementById('save-box-p4');
+      if(sb){sb.className='save-box show';sb.innerHTML='&#9997; Semua jawaban benar! Lengkapi langkah-langkah untuk: '+missingSteps.join(', ')+' agar bisa disimpan.';}
+    } else {
+      if(!saved['p4']) saved['p4']={cells:{}};
+      saved['p4'].done=true;
+      document.getElementById('btn-p4').style.display='inline-flex';
+      var sb=document.getElementById('save-box-p4');
+      if(sb){sb.className='save-box show';sb.innerHTML='&#10003; Semua soal berhasil dijawab! Klik Simpan untuk melanjutkan.';}
+    }
+  }
+}
+
+function doSave4(){
+  // Validate all steps filled
+  var missingSteps=[];
+  verifData.forEach(function(vd,n){
+    var st=(document.getElementById('steps-'+vd.id)||{}).value||'';
+    if(!st.trim()) missingSteps.push('Soal '+(n+1));
+  });
+  if(missingSteps.length>0){
+    var sb=document.getElementById('save-box-p4');
+    if(sb){sb.className='save-box show';sb.innerHTML='&#9888; Lengkapi langkah-langkah untuk: '+missingSteps.join(', ')+' sebelum menyimpan!';}
+    return;
+  }
+  // Save steps
+  if(!saved['p4']) saved['p4']={cells:{}};
+  if(!saved['p4'].steps) saved['p4'].steps={};
+  verifData.forEach(function(vd){
+    var el=document.getElementById('steps-'+vd.id);
+    if(el){
+      saved['p4'].steps[vd.id]=el.value.trim();
+      el.readOnly=true;el.classList.add('ans-locked');
+      el.style.background='#e8f5e9';el.style.borderColor='#a5d6a7';el.style.color='#1b5e20';el.style.fontWeight='700';
+    }
+  });
+  saveAndNext('p4',function(){return saved['p4']||{done:true,cells:{},steps:{}}});
+}
+
+/* ======== PHASE 5 — CONCLUSION (auto-lock on save) ======== */
+function ph5(){
+  var prev=saved['p5']||{};
+  var locked=!!(prev.c1&&prev.c2&&prev.c3&&prev.c4);
+  function ta(id,ph,val){
+    if(locked&&val){
+      return '<textarea id="'+id+'" rows="2" readonly class="ans-locked">'+escHtml(val)+'</textarea>';
+    }
+    return '<textarea id="'+id+'" rows="2" placeholder="'+ph+'">'+(val||'')+'</textarea>';
+  }
+  return renderSavedAnswers(5)+
+  '<div class="badge badge-g">Fase 6 — Generalization</div>'+
+  '<div class="card card-blue"><div class="stitle">&#128161; Saatnya Kamu Menyimpulkan!</div>'+
+  '<p style="font-size:12px;color:#4a6080;line-height:1.7">Hebat! Kamu sudah melalui semua tahap eksplorasi. Sekarang <b>tuliskan kesimpulanmu sendiri</b> dengan kata-katamu!</p></div>'+
+  '<div class="card">'+
+  '<div class="igroup"><label>1. Apa yang dimaksud dengan juring lingkaran?</label>'+ta('c1','Menurut saya, juring lingkaran adalah...',prev.c1)+'</div>'+
+  '<div class="igroup"><label>2. Faktor apa saja yang mempengaruhi luas juring?</label>'+ta('c2','Luas juring dipengaruhi oleh...',prev.c2)+'</div>'+
+  '<div class="igroup"><label>3. Tuliskan rumus luas juring lingkaran!</label>'+ta('c3','Rumus luas juring lingkaran adalah...',prev.c3)+'</div>'+
+  '<div class="igroup"><label>4. Bagaimana hubungan antara sudut dan luas juring?</label>'+ta('c4','Semakin besar sudut, maka...',prev.c4)+'</div>'+
+  '<p style="font-size:12px;color:#4a6080;margin-top:10px;margin-bottom:6px">Seberapa yakin kamu dengan kesimpulanmu?</p>'+
+  '<div style="display:flex;gap:8px" id="stars">'+
+  [1,2,3,4,5].map(function(n){
+    var col=locked&&n<=(prev.star||0)?'#f9a825':'#ccc';
+    return '<span style="font-size:22px;cursor:pointer;color:'+col+'" onclick="rateStar('+n+')">★</span>';
+  }).join('')+
+  '</div>'+
+  '<div class="save-box" id="save-box-p5">'+(locked?'&#10003; Kesimpulan tersimpan!':'')+'</div>'+
+  '<div class="fb" id="fb-conc"></div>'+
+  '<div class="btn-row">'+
+  (locked?'':'<button class="btn btn-s" onclick="saveConclude()">Simpan Kesimpulan</button>')+
+  '<button class="btn btn-g" id="btn-quiz" style="display:'+(locked?'inline-flex':'none')+'" onclick="startQuiz()">Mulai Kuis &#127942;</button></div></div>';
+}
+
+function rateStar(n){
+  var stars=document.querySelectorAll('#stars span');
+  stars.forEach(function(s,i){s.style.color=i<n?'#f9a825':'#ccc'});
+  if(saved['p5']) saved['p5'].star=n;
+}
+
+function saveConclude(){
+  var c1=(document.getElementById('c1')||{}).value||'';
+  var c2=(document.getElementById('c2')||{}).value||'';
+  var c3=(document.getElementById('c3')||{}).value||'';
+  var c4=(document.getElementById('c4')||{}).value||'';
+  if([c1,c2,c3,c4].some(function(v){return v.trim().length<5})){
+    showFb('fb-conc','Lengkapi semua kesimpulan terlebih dahulu ya!','err'); return;
+  }
+  // Count stars
+  var star=0;
+  var stars=document.querySelectorAll('#stars span');
+  stars.forEach(function(s,i){if(s.style.color==='rgb(249, 168, 37)'||s.style.color==='#f9a825') star=i+1;});
+  saved['p5']={c1:c1,c2:c2,c3:c3,c4:c4,star:star};
+  // Lock all textareas
+  ['c1','c2','c3','c4'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.readOnly=true;el.classList.add('ans-locked');el.style.background='#e8f5e9';el.style.borderColor='#a5d6a7';el.style.color='#1b5e20';el.style.fontWeight='700';}
+  });
+  var sb=document.getElementById('save-box-p5');
+  sb.className='save-box show';
+  sb.innerHTML='&#10003; Kesimpulan tersimpan! '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  showFb('fb-conc','Luar biasa! Kamu berhasil menemukan sendiri rumus luas juring. Siap untuk kuis?','ok');
+  done[5]=1;
+  // Hide save button, show quiz button
+  var btnSave=document.querySelector('#ph-body .btn-s');
+  if(btnSave&&btnSave.textContent.includes('Simpan')) btnSave.style.display='none';
+  document.getElementById('btn-quiz').style.display='inline-flex';
+}
+
+/* ======== QUIZ ======== */
+var qData=[
+  {q:'Sebuah juring memiliki jari-jari 7 cm dan sudut pusat 90°. Berapakah luasnya? (π = 22/7)',opts:['38,5 cm²','44 cm²','28 cm²','77 cm²'],ans:0,exp:'L = (90/360) × (22/7) × 49 = (1/4) × 154 = 38,5 cm²'},
+  {q:'Lingkaran berjari-jari 14 cm dibagi 6 juring sama besar. Besar sudut tiap juring adalah...',opts:['45°','72°','60°','90°'],ans:2,exp:'360° ÷ 6 = 60° per juring'},
+  {q:'Rumus luas juring lingkaran dengan sudut pusat α dan jari-jari r adalah...',opts:['(α/180°) × πr²','(α/360°) × πr','α × r²','(α/360°) × πr²'],ans:3,exp:'Rumus benar: L = (α/360°) × πr²'},
+  {q:'Juring berjari-jari 10 cm dan sudut 72°. Berapakah luasnya? (π = 3,14)',opts:['62,8 cm²','31,4 cm²','125,6 cm²','78,5 cm²'],ans:0,exp:'L = (72/360) × 3,14 × 100 = 0,2 × 314 = 62,8 cm²'},
+  {q:'Luas juring = 77 cm² dan jari-jari = 14 cm. Besar sudut pusatnya? (π = 22/7)',opts:['45°','60°','30°','90°'],ans:0,exp:'77 = (α/360) × 616 → α/360 = 1/8 → α = 45°'}
+];
+
+var rewardMessages=[
+  {t:'LUAR BIASA SEKALI! Jawaban Sempurna! 🎉',f:'🌸🌺🌼🌻🌹🌷🌸🌺🌼'},
+  {t:'KEREN BANGET! Kamu Memang Hebat!',f:'🌷🌹🌸🌺🌼🌻🌷🌹'},
+  {t:'YEAY! Jawaban Tepat! Mantap!',f:'🌸🌼🌻🌹🌷🌸'},
+  {t:'ASYIK! Benar! Terus Semangat!',f:'🌺🌸🌼🌷🌺'},
+  {t:'YES! Jawaban Benar! Kamu Bisa!',f:'🌸🌷🌺🌸'}
+];
+
+function startQuiz(){
+  qIdx=0;qScore=0;qWrong=[];
+  for(var i=0;i<qData.length;i++) qWrong.push(0);
+  gS('s-quiz');renderQ();
+}
+
+function renderQ(){
+  var q=qData[qIdx];
+  document.getElementById('q-ctr').textContent=(qIdx+1)+'/'+qData.length;
+  document.getElementById('q-pbar').style.width=(((qIdx+1)/qData.length)*100)+'%';
+  var html='<div class="card"><div style="font-size:11px;color:#1565c0;font-weight:700;margin-bottom:6px">Soal '+(qIdx+1)+' dari '+qData.length+'</div>';
+  html+='<div style="font-size:14px;font-weight:700;color:#1a2a3a;margin-bottom:12px;line-height:1.6">'+q.q+'</div>';
+  var letters=['A','B','C','D'];
+  for(var i=0;i<q.opts.length;i++) html+='<button class="qopt" id="opt'+i+'" onclick="pickOpt('+i+')">'+letters[i]+'. '+q.opts[i]+'</button>';
+  html+='<div class="fb" id="fb-q" style="margin-top:8px"></div>';
+  if(qWrong[qIdx]>0) html+='<div style="font-size:11px;color:#e65100;margin-top:6px;background:#fff8e1;padding:7px 10px;border-radius:8px">⚠ Sudah '+qWrong[qIdx]+' kali salah — hitung ulang dengan teliti ya!</div>';
+  html+='</div>';
+  document.getElementById('q-body').innerHTML=html;
+}
+
+function pickOpt(i){
+  var q=qData[qIdx];
+  var fb=document.getElementById('fb-q');
+  document.querySelectorAll('.qopt').forEach(function(b){b.disabled=true});
+  if(i===q.ans){
+    document.getElementById('opt'+i).classList.add('ok');
+    if(qWrong[qIdx]===0) qScore++;
+    var rIdx=Math.min(qIdx,rewardMessages.length-1);
+    var r=rewardMessages[rIdx];
+    fb.innerHTML='<div class="celebrate">'+
+      '<span class="flowers">'+r.f+'</span>'+
+      '<div class="rew-txt">'+r.t+'</div>'+
+      '<div style="font-size:22px;margin:6px 0">'+r.f+'</div>'+
+      (qWrong[qIdx]===0?'<div style="font-size:13px;color:#2e7d32;font-weight:700;margin:4px 0">+1 Poin! 🎉</div>':'<div style="font-size:12px;color:#f57f17;font-weight:700;margin:4px 0">Bagus! Akhirnya menemukan jawaban yang benar!</div>')+
+      '</div>';
+    fb.className='fb fb-ok show';
+    setTimeout(function(){if(qIdx<qData.length-1){qIdx++;renderQ();}else showResult();},2800);
+  } else {
+    document.getElementById('opt'+i).classList.add('no');
+    qWrong[qIdx]++;
+    fb.innerHTML='Kurang tepat, coba lagi!';
+    fb.className='fb fb-err show';
+    setTimeout(function(){
+      var el=document.getElementById('opt'+i);
+      if(el){el.classList.remove('no');el.disabled=false;}
+      document.querySelectorAll('.qopt').forEach(function(b){if(!b.classList.contains('ok'))b.disabled=false});
+      document.getElementById('fb-q').style.display='none';
+    },1800);
+  }
+}
+
+function showResult(){
+  gS('s-result');
+  var pct=Math.round((qScore/qData.length)*100);
+  var rIdx=qScore===5?0:qScore===4?1:qScore===3?2:qScore===2?3:4;
+  var r=rewardMessages[rIdx];
+  var praise=qScore===5?'Nilai sempurna! Kamu sungguh luar biasa!':qScore===4?'Hampir sempurna, terus berlatih!':qScore===3?'Bagus, terus tingkatkan!':qScore===2?'Cukup baik, pelajari lagi!':'Jangan menyerah, kamu pasti bisa!';
+  document.getElementById('r-body').innerHTML=
+  '<div class="card" style="max-width:380px;margin:0 auto;text-align:center">'+
+  '<span class="flowers" style="font-size:30px;letter-spacing:4px">'+r.f+'</span>'+
+  '<div class="rew-txt" style="font-size:20px;margin:8px 0">'+r.t+'</div>'+
+  '<div class="score-big">'+qScore+'/'+qData.length+'</div>'+
+  '<div style="font-size:14px;color:#4a6080;margin-bottom:8px">Nilai: '+pct+' — '+praise+'</div>'+
+  '<span class="flowers" style="font-size:28px;letter-spacing:5px">'+r.f+'</span>'+
+  '<div style="background:#e3f2fd;border-radius:10px;padding:12px;margin:14px 0;text-align:left">'+
+  '<div style="font-size:11px;color:#0d47a1;font-weight:700;margin-bottom:4px">Rumus yang kamu temukan:</div>'+
+  '<div style="font-size:20px;font-weight:900;color:#0d47a1;text-align:center">L = (α/360°) × πr²</div></div>'+
+  '<div style="font-size:11px;color:#4a6080;margin-bottom:14px">Terima kasih telah belajar bersama kami!<br>UIN Walisongo Semarang</div>'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="startQuiz()">Ulangi Kuis</button><button class="btn btn-p" onclick="gS(\'s-main\');renderPhase(5)">Kembali ke Materi</button></div></div>';
+}
+
+function showFb(id,msg,type){var el=document.getElementById(id);if(!el)return;el.innerHTML=msg;el.className='fb fb-'+type+' show';el.style.display='block';}
+function showFbEl(el,msg,type){el.innerHTML=msg;el.className='fb fb-'+type+' show';el.style.display='block';}
+</script>
