@@ -563,21 +563,21 @@ function ph3(){
   '<div class="igroup"><label>Langkah 1: Berapa nilai α/360° ? (tulis pecahan atau desimal)</label>'+
   '<input type="text" id="s1" placeholder="..." value="'+(prev.s1||'')+(prev.s1?' class="ans-locked"':'')+'" '+(prev.s1?'readonly':'')+'/><div class="fb '+(prev.s1?'fb-ok show':'')+'" id="fb-s1">'+(prev.s1?'Benar! 72/360 = 0,2':'')+'</div>'+
   '<div style="background:#fff8e1;border-left:3px solid #f9a825;border-radius:0 8px 8px 0;padding:8px 12px;margin-top:8px;font-size:11px;color:#e65100">&#9997; Tuliskan langkah-langkah cara kamu mendapatkan jawaban di atas:</div>'+
-  stepsArea('steps1','Contoh: 72 dibagi 360, hasilnya adalah ...',prev.steps1||'')+
+  stepsArea('steps1','Jawab dengan jelas!',prev.steps1||'')+
   '<div class="fb" id="fb-steps1" style="'+(stepsLocked&&prev.steps1?'':'display:none')+'"></div>'+
   '</div>'+
 
   '<div class="igroup"><label>Langkah 2: Berapa πr² jika r = 10 cm? (π = 3,14)</label>'+
   '<input type="text" id="s2" placeholder="... cm²" value="'+(prev.s2||'')+(prev.s2?' class="ans-locked"':'')+'" '+(prev.s2?'readonly':'')+'/><div class="fb '+(prev.s2?'fb-ok show':'')+'" id="fb-s2">'+(prev.s2?'Tepat! 3,14 × 100 = 314 cm²':'')+'</div>'+
   '<div style="background:#fff8e1;border-left:3px solid #f9a825;border-radius:0 8px 8px 0;padding:8px 12px;margin-top:8px;font-size:11px;color:#e65100">&#9997; Tuliskan langkah-langkah cara kamu mendapatkan jawaban di atas:</div>'+
-  stepsArea('steps2','Contoh: π × r² = 3,14 × 10² = 3,14 × ... = ...',prev.steps2||'')+
+  stepsArea('steps2','Jawab dengan jelas!',prev.steps2||'')+
   '<div class="fb" id="fb-steps2" style="'+(stepsLocked&&prev.steps2?'':'display:none')+'"></div>'+
   '</div>'+
 
   '<div class="igroup"><label>Langkah 3: Luas juring = Langkah 1 × Langkah 2 = ?</label>'+
   '<input type="text" id="s3" placeholder="... cm²" value="'+(prev.s3||'')+(prev.s3?' class="ans-locked"':'')+'" '+(prev.s3?'readonly':'')+'/><div class="fb '+(prev.s3?'fb-ok show':'')+'" id="fb-s3">'+(prev.s3?'Luar biasa! 0,2 × 314 = 62,8 cm²':'')+'</div>'+
   '<div style="background:#fff8e1;border-left:3px solid #f9a825;border-radius:0 8px 8px 0;padding:8px 12px;margin-top:8px;font-size:11px;color:#e65100">&#9997; Tuliskan langkah-langkah cara kamu mendapatkan jawaban di atas:</div>'+
-  stepsArea('steps3','Contoh: Langkah 1 × Langkah 2 = 0,2 × ... = ...',prev.steps3||'')+
+  stepsArea('steps3','Jawab dengan jelas!',prev.steps3||'')+
   '<div class="fb" id="fb-steps3" style="'+(stepsLocked&&prev.steps3?'':'display:none')+'"></div>'+
   '</div>'+
 
